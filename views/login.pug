@@ -1,0 +1,10 @@
+extends layout
+
+block content
+    form(action='/login', method='post')
+        each field in fields
+            label(for=field.name) #{field.label}:
+            input(type=field.type, name=field.name, id=field.name, required=field.required)
+
+        input(type='submit', value='Submit')
+    

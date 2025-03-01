@@ -1,0 +1,95 @@
+
+block content
+  h1= title
+  title ="Beats"
+  ul
+    each beat in beats
+      li
+        p #{beat.title} - #{beat.genre} - #{beat.tempo} BPM
+        audio(controls)
+          source(src=beat.filePath, type="audio/mpeg")
+        br
+
+    // Recording controls
+    button(id="startBtn") Start Recording
+    button(id="stopBtn", disabled=true) Stop Recording
+    audio(id="playback", controls)
+
+  script.
+    let mediaRecorder;
+    let audioChunks = [];
+    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let sourceNode;
+    let gainNode = audioContext.createGain();
+    let beatAudioElement;
+
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const playback = document.getElementById('playback');
+
+    function playBeatAndRecord(beatId) {
+      beatAudioElement = document.getElementById(`audio-${beatId}`);
+      
+      if (!beatAudioElement) {
+        console.error('Beat not found');
+        return;
+      }
+
+      // Play the beat
+      beatAudioElement.play();
+
+      // Create a media element source
+      sourceNode = audioContext.createMediaElementSource(beatAudioElement);
+
+      // Connect the source to the gain node and then to the context's destination
+      sourceNode.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Get user audio
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.start();
+
+          mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+          };
+
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            playback.src = audioUrl;
+
+            // Send the audio to the server
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'recording.mp3');
+
+            fetch('/freestyle/record/save', {
+              method: 'POST',
+              body: formData,
+            })
+            .then(response => response.json())
+            .then(data => console.log('Recording saved:', data));
+
+            audioChunks = [];
+          };
+
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+        });
+    }
+
+    startBtn.onclick = () => {
+      const selectedBeatId = /* Get the selected beat ID based on your UI logic */;
+      playBeatAndRecord(selectedBeatId);
+    };
+
+    stopBtn.onclick = () => {
+      mediaRecorder.stop();
+      if (beatAudioElement) {
+        beatAudioElement.pause();
+        beatAudioElement.currentTime = 0; // reset the beat to the start
+      }
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    };
