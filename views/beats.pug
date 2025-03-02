@@ -1,19 +1,31 @@
+extends layout
 
 block content
-  h1= title
-  title ="Beats"
+  h1 Beats Library
   ul
     each beat in beats
-      li
-        p #{beat.title} - #{beat.genre} - #{beat.tempo} BPM
-        audio(controls)
-          source(src=beat.filePath, type="audio/mpeg")
-        br
+      li #{beat.title} (#{beat.genre}) - #{beat.tempo} BPM, File: #{beat.filePath}
+  hr
+  h2 Add New Beat
+  form(action="/beats/add", method="POST")
+    div
+      label(for="title") Title:
+      input(type="text", name="title", required)
+    div
+      label(for="genre") Genre:
+      input(type="text", name="genre", required)
+    div
+      label(for="tempo") Tempo:
+      input(type="number", name="tempo", required)
+    div
+      label(for="filePath") File Path:
+      input(type="text", name="filePath", required)
+    button(type="submit") Add Beat
 
-    // Recording controls
-    button(id="startBtn") Start Recording
-    button(id="stopBtn", disabled=true) Stop Recording
-    audio(id="playback", controls)
+  // Recording controls
+  button(id="startBtn") Start Recording
+  button(id="stopBtn", disabled=true) Stop Recording
+  audio(id="playback", controls)
 
   script.
     let mediaRecorder;
@@ -80,7 +92,7 @@ block content
     }
 
     startBtn.onclick = () => {
-      const selectedBeatId = /* Get the selected beat ID based on your UI logic */;
+      const selectedBeatId = /* Get the selected beat ID based on your UI logic */
       playBeatAndRecord(selectedBeatId);
     };
 
