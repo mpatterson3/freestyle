@@ -12,7 +12,7 @@ const exploreRouter = require('./routes/explore');
 const aboutRouter = require('./routes/about');
 const freestyleRouter = require('./routes/freestyle');
 const spotifyRouter = require('./routes/spotify');
-const beatsRouter = require('./routes/beats');  // new unified beats route
+const beatsRouter = require('./routes/beats/beats');
 
 const app = express();
 
@@ -35,7 +35,7 @@ app.use('/explore', exploreRouter);
 app.use('/about', aboutRouter);
 app.use('/freestyle', freestyleRouter);
 app.use('/spotify', spotifyRouter);
-app.use('/beats', beatsRouter); // updated endpoint
+app.use('/beats', beatsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

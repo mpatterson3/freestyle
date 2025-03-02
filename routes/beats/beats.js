@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Beat = require('../modules/Beat');
-const BeatLibrary = require('../modules/BeatLibrary');
+const Beat = require('../../modules/Beat');
+const BeatLibrary = require('../../modules/BeatLibrary');
 
 // Initialize BeatLibrary with default beats
 const beatLibrary = new BeatLibrary();
